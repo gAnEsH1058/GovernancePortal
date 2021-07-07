@@ -1,0 +1,153 @@
+{
+    "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion":"1.0.0.0",
+    "parameters":{
+       "numberOfInstances":{
+          "type":"int"
+       },
+       "startVMNumber":{
+          "type":"string"
+       }
+    },
+    "variables":{
+       "virtualNetworkName":"",
+       "adminUsername":"",
+       "adminPassword":"",
+       "location":"[resourceGroup().location]",
+       "virtualMachineName":"",
+       "networkInterfaceName":"",
+       "diagnosticsStorageAccountName":"",
+       "addressPrefix":"",
+       "subnetName":"",
+       "subnetPrefix":"",
+       "vnetId":"[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+       "subnetRef":"[concat(variables('vnetID'),'/subnets/',variables ('subnetName'))]",
+       "publicIpAddressName":"",
+       "publicIpAddressType":"",
+       "publicIpAddressSku":"",
+       "virtualMachineSize":"",
+       "imageResourceGroup":"",
+       "vmImageName":"",
+       "subscriptionID":"",
+       "domainJoinOptions":3,
+       "domainJoinUserName":"",
+       "domainJoinUserPassword":"",
+       "domainFQDN":"",
+       "ouPath":"",
+       "imageReferenceID":"[concat('/subscriptions/',variables ('subscriptionID'),'/resourceGroups/',variables ('imageResourceGroup'),'/providers/Microsoft.Compute/images/',variables ('vmImageName'))]"
+    },
+    "resources":[
+       {
+          "name":"[concat(variables('virtualMachineName'), copyindex(int(parameters('startVMNumber'))))]",
+          "type":"Microsoft.Compute/virtualMachines",
+          "apiVersion":"2018-04-01",
+          "zones":[
+             "1"
+          ],
+          "location":"[variables('location')]",
+          "copy":{
+             "name":"virtualMachineLoop",
+             "count":"[parameters('numberOfInstances')]"
+          },
+          "dependsOn":[
+             "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'), copyindex(int(parameters('startVMNumber'))),'-NIC',copyindex(int(parameters('startVMNumber'))))]"
+          ],
+          "properties":{
+             "osProfile":{
+                "computerName":"[concat(variables('virtualMachineName'), copyindex(int(parameters('startVMNumber'))))]",
+                "adminUsername":"[variables('adminUsername')]",
+                "adminPassword":"[variables('adminPassword')]",
+                "windowsConfiguration":{
+                   "provisionVmAgent":"true"
+                }
+             },
+             "hardwareProfile":{
+                "vmSize":"[variables('virtualMachineSize')]"
+             },
+             "storageProfile":{
+                "imageReference":{
+                   "id":"[variables('imageReferenceID')]"
+                },
+                "osDisk":{
+                   "createOption":"fromImage",
+                   "managedDisk":{
+                      "storageAccountType":"Premium_LRS"
+                   }
+                }
+             },
+             "networkProfile":{
+                "networkInterfaces":[
+                   {
+                      "id":"[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'), copyindex(int(parameters('startVMNumber'))),'-NIC',copyindex(int(parameters('startVMNumber')))))]"
+                   }
+                ]
+             },
+             "diagnosticsProfile":{
+                "bootDiagnostics":{
+                   "enabled":true,
+                   "storageUri":"[concat('https://', variables('diagnosticsStorageAccountName'), '.blob.core.windows.net/')]"
+                }
+             }
+          }
+       },
+    //    {
+    //       "comments":"Join domain - JsonADDomainExtension",
+    //       "apiVersion":"2015-06-15",
+    //       "type":"Microsoft.Compute/virtualMachines/extensions",
+    //       "name":"[concat(variables('virtualMachineName'), copyindex(int(parameters('startVMNumber'))),'/joindomain')]",
+    //       "dependsOn":[
+    //          "[concat('Microsoft.Compute/virtualMachines/', concat(variables('virtualMachineName'), copyindex(int(parameters('startVMNumber')))))]"
+    //       ],
+    //       "location":"[variables('location')]",
+    //       "copy":{
+    //          "name":"vmDomainJoinCopy",
+    //          "count":"[parameters('numberOfInstances')]"
+    //       },
+    //       "properties":{
+    //          "publisher":"Microsoft.Compute",
+    //          "type":"JsonADDomainExtension",
+    //          "typeHandlerVersion":"1.3",
+    //          "autoUpgradeMinorVersion":true,
+    //          "settings":{
+    //             "Name":"[variables('domainFQDN')]",
+    //             "OUPath":"[variables('ouPath')]",
+    //             "User":"[variables('domainJoinUserName')]",
+    //             "Restart":"true",
+    //             "Options":"[variables('domainJoinOptions')]"
+    //          },
+    //          "protectedSettings":{
+    //             "Password":"[variables('domainJoinUserPassword')]"
+    //          }
+    //       }
+    //    },
+       {
+          "name":"[concat(variables('networkInterfaceName'), copyindex(int(parameters('startVMNumber'))),'-NIC',copyindex(int(parameters('startVMNumber'))))]",
+          "type":"Microsoft.Network/networkInterfaces",
+          "apiVersion":"2018-04-01",
+          "location":"[variables('location')]",
+          "copy":{
+             "name":"nicLoop",
+             "count":"[parameters('numberOfInstances')]"
+          },
+          "dependsOn":[
+             "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'), copyindex(int(parameters('startVMNumber'))),'-IP',copyindex(int(parameters('startVMNumber'))))]"
+          ],
+          "properties":{
+             "ipConfigurations":[
+                {
+                   "name":"ipconfig1",
+                   "properties":{
+                      "subnet":{
+                         "id":"[variables('subnetRef')]"
+                      },
+                      "privateIPAllocationMethod":"Dynamic",
+                      "publicIpAddress":{
+                         "id":"[resourceId('Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'), copyindex(int(parameters('startVMNumber'))),'-IP',copyindex(int(parameters('startVMNumber')))))]"
+                      }
+                   }
+                }
+             ]
+          }
+       }
+    ]
+ }
