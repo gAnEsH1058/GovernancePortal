@@ -9,6 +9,18 @@
             "description":"VNet name"
          }
       },
+      "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
+      },
+      "adminPasswordOrKey": {
+         "type": "securestring",
+         "metadata": {
+         "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
+         }
+      },
       "vnetaddressPrefix":{
          "type":"string",
          "defaultValue":"10.199.254.0/24",
@@ -197,63 +209,22 @@
          "type":"int",
          "defaultValue":2
       },
-        "storageAccountName":{
-            "type": "string",
-            "defaultValue":"scoreplussa"
-        },
-         "vmConfiguration":{
-             "type": "array",
-            "defaultValue":[
-            {
-            "vm_Name": "web",
-            "virtualMachineSize":"Standard_D4s_v4",
-            "adminUsername":"Admin1234",
-            "adminPassword":"Admin@123445",
-            "subnetName":"web-subnet",
-            "networkInterfaceName":"web",
-            "networkSecurityGroupName":"[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', 'web-nsg')]",
-            "osDiskType":"StandardSSD_LRS",
-            "publisher":"MicrosoftWindowsServer",
-            "offer":"WindowsServer",
-            "sku":"2016-Datacenter",
-            "version":"latest",
-            "NumberOfDisk":2,
-            "DataDisk1sku": "StandardSSD_LRS",
-            "DataDisk1SizeGB": 128,
-            "DataDisk2sku": "StandardSSD_LRS",
-            "DataDisk2SizeGB": 256
-            },
-            {
-            "vm_Name": "app",
-            "virtualMachineSize":"Standard_D4s_v4",
-            "adminUsername":"Admin1234",
-            "adminPassword":"Admin@123445",
-            "subnetName":"app-subnet",
-            "networkInterfaceName":"app",
-            "networkSecurityGroupName":"[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', 'web-nsg')]",
-            "osDiskType":"StandardSSD_LRS",
-            "diskSizeGB":"1023",
-            "publisher":"MicrosoftWindowsServer",
-            "offer":"WindowsServer",
-            "sku":"2016-Datacenter",
-            "version":"latest",
-            "NumberOfDisk":2,
-            "DataDisk1sku": "StandardSSD_LRS",
-            "DataDisk1SizeGB": 128,
-            "DataDisk2sku": "StandardSSD_LRS",
-            "DataDisk2SizeGB": 256     
-            }
-            ]
-        }
+      "storageAccountName":{
+         "type":"string",
+         "defaultValue":"scoreplussa"
+      },
+      "vmConfiguration":{
+         "type":"array"
+      }
    },
    "variables":{
-      "NetworkTemplatelink":"https://raw.githubusercontent.com/gAnEsH1058/Score-ARM-Template/master/network.json",
-      "VMTemplatelink":"https://raw.githubusercontent.com/gAnEsH1058/Score-ARM-Template/master/vmserver.json"
+      "NetworkTemplatelink":"https://raw.githubusercontent.com/gAnEsH1058/scoreARMTemplate/master/network.json",
+      "VMTemplatelink":"https://raw.githubusercontent.com/gAnEsH1058/scoreARMTemplate/master/vmserver.json"
    },
    "resources":[
       {
          "apiVersion":"2015-01-01",
-         "name":"NetowrkTemplateDeployment",
+         "name":"NetworkTemplateDeployment",
          "type":"Microsoft.Resources/deployments",
          "properties":{
             "mode":"incremental",
@@ -356,33 +327,51 @@
          }
       },
       {
+         "apiVersion":"2015-01-01",
+         "name":"VMTemplateDeployment",
          "type":"Microsoft.Resources/deployments",
-         "name":"updateIp",
-         "apiVersion":"2020-06-01",
-         "dependsOn":[
-            "[variables('nicName')]"
-         ],
          "properties":{
-            "mode":"Incremental",
+            "mode":"incremental",
             "templateLink":{
-               "uri":"[variables('updateip_templateUri')]",
+               "uri":"[variables('VMTemplatelink')]",
                "contentVersion":"1.0.0.0"
             },
             "parameters":{
-               "nicName":{
-                  "value":"[variables('nicName')]"
+               "storageAccountName":{
+                  "value":"[parameters('storageAccountName')]"
                },
-               "SubnetRef":{
-                  "value":"[variables('SubnetRef')]"
+               "virtualNetworkName":{
+                  "value":"[parameters('virtualNetworkName')]"
                },
-               "privateIp":{
-                  "value":"[reference(variables('nicName')).ipConfigurations[0].properties.privateIPAddress]"
+               "vmConfiguration":{
+                  "value":"[parameters('vmConfiguration')]"
                },
-               "location":{
-                  "value":"[parameters('location')]"
+               "adminUsername": {
+                  "value":"[parameters('adminUsername')]"
+               },
+               "adminPasswordOrKey": {
+                "value":"[parameters('adminPasswordOrKey')]"
+               },
+               "webPrefix":{
+                  "value":"[parameters('webPrefix')]"
+               },
+               "analyticsPrefix":{
+                  "value":"[parameters('analyticsPrefix')]"
+               },
+               "sftpPrefix":{
+                  "value":"[parameters('sftpPrefix')]"
+               },
+               "dataIntegrationPrefix":{
+                  "value":"[parameters('dataIntegrationPrefix')]"
+               },
+               "appPrefix":{
+                  "value":"[parameters('appPrefix')]"
+               },
+               "DBPrefix":{
+                  "value":"[parameters('DBPrefix')]"
                }
             }
-         }
+         } 
       }
    ]
 }
