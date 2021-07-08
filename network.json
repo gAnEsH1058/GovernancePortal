@@ -1,5 +1,5 @@
 {
-   "$schema":"https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+   "$schema":"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
    "contentVersion":"1.0.0.0",
    "parameters":{
       "virtualNetworkName":{
@@ -167,6 +167,13 @@
                "description": "Name of the Bastion Service"
         }
       },
+      "publicIpAddressForNatGateway": {
+         "type": "String",
+         "defaultValue":"NatGatewayPublicIP",
+         "metadata": {
+         "description": "IP Addresss of the Nat Gateway"
+        }
+      },
       "publicIpAddressForBastion": {
          "type": "String",
          "defaultValue":"BastionServicePublicIP",
@@ -182,7 +189,7 @@
       // },
       //  "ddosProtectionPlanEnabled": {
       //    "type": "bool",
-      //    "defaultValue": false 
+      //    "defaultValue": "false" 
       // },
       "applicationGatewayName": {
          "type": "string",
@@ -198,7 +205,7 @@
       },
       // "AppGatewayAutoScaleMinCapacity": {
       //    "type": "int",
-      //    "defaultValue": 2
+      //    "defaultValue": "2"
       // },
       "publicIpAddressGateway": {
          "type": "string",
@@ -206,7 +213,7 @@
       },
       // "AppGatewayAutoScaleMaxCapacity": {
       //    "type": "int",
-      //    "defaultValue":10
+      //    "defaultValue":"10"
       // },
       "AppGatewayCapacity":{
          "type": "int",
@@ -317,6 +324,9 @@
                      "addressPrefix":"[parameters('appsnetaddressPrefix')]",
                      "networkSecurityGroup":{
                         "id":"[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName').APPnsg)]"
+                     },
+                     "natGateway": {
+                         "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
                      }
                   }
                },
@@ -335,9 +345,6 @@
                      "addressPrefix":"[parameters('websnetaddressPrefix')]",
                      "networkSecurityGroup":{
                         "id":"[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName').webnsg)]"
-                     },
-                     "natGateway": {
-                         "id": "[resourceId('Microsoft.Network/natGateways', parameters('natgatewayname'))]"
                      }
                   }
                },
@@ -977,8 +984,28 @@
             "name": "Standard"
         },
         "properties": {
-            "idleTimeoutInMinutes": 4
-        }
+                "publicIPAddresses": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressForNatGateway'))]"
+                    }
+                ],
+                "idleTimeoutInMinutes": 4
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressForNatGateway'))]"
+            ]
+      },
+      {
+          "type": "Microsoft.Network/publicIpAddresses",
+          "apiVersion": "2020-05-01",
+          "name": "[parameters('publicIpAddressForNatGateway')]",
+          "location":"[resourceGroup().location]",
+          "sku": {
+              "name": "Standard"
+          },
+          "properties": {
+              "publicIPAllocationMethod": "Static"
+          }
       },
       {
           "type": "Microsoft.Network/publicIpAddresses",
