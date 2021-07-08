@@ -93,16 +93,16 @@
       }
    },
    "variables":{
-        "linuxConfiguration":{
+         "linuxConfiguration":{
          "disablePasswordAuthentication": true,
          "ssh": {
          "publicKeys": [
             {
-               "path": "[concat('/home/', parameters('vmConfiguration')[copyIndex()].adminUsername, '/.ssh/authorized_keys')]",
-               "keyData": "[parameters('vmConfiguration')[copyIndex()].adminPasswordOrKey]"
+               "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+               "keyData": "[parameters('adminPasswordOrKey')]"
             }
-            ]
-        }
+         ]
+         }
       }       
    },
    "resources":[
