@@ -216,10 +216,10 @@
                },
                "osDisk":{
                   "caching":"ReadWrite",
-                  "createOption":"FromImage",
-                  "managedDisk":{
-                     "storageAccountType":"[parameters('vmConfiguration')[copyIndex()].osDiskType]"
-                  }
+                  "createOption":"FromImage"
+                  //   "managedDisk":{
+                //      "storageAccountType":"[parameters('vmConfiguration')[copyIndex()].osDiskType]"
+                //   }
                },
                "dataDisks":[
                   {
