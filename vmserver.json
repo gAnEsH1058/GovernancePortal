@@ -229,8 +229,7 @@
                      "lun":0,
                      "createOption":"attach",
                      "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat(parameters('vmConfiguration')[copyIndex()].vm_Name,'_DataDisk_0'))]",
-                        "storageAccountType":"StandardSSD_LRS"
+                        "id":"[resourceId('Microsoft.Compute/disks', concat(parameters('vmConfiguration')[copyIndex()].vm_Name,'_DataDisk_0'))]"
                      },
                      "writeAcceleratorEnabled":false
                   },
@@ -241,8 +240,7 @@
                      "lun":1,
                      "createOption":"attach",
                      "managedDisk":{
-                        "id":"[resourceId('Microsoft.Compute/disks', concat(parameters('vmConfiguration')[copyIndex()].vm_Name,'_DataDisk_1'))]",
-                        "storageAccountType":"StandardSSD_LRS"
+                        "id":"[resourceId('Microsoft.Compute/disks', concat(parameters('vmConfiguration')[copyIndex()].vm_Name,'_DataDisk_1'))]"
                      },
                      "writeAcceleratorEnabled":false
                   }
