@@ -606,8 +606,8 @@
                   "properties":{
                      "description":"Allow_Web_subnet",
                      "protocol":"Tcp",
-                     "sourcePortRanges":["8543","8643","8743","8843"],
-                     "destinationPortRange":"*",
+                     "sourcePortRange":"*",
+                     "destinationPortRanges":["8543","8643","8743","8843"],
                      "sourceAddressPrefix":"[parameters('websnetaddressPrefix')]",
                      "destinationAddressPrefix":"[parameters('appsnetaddressPrefix')]",
                      "access":"Allow",
@@ -620,8 +620,8 @@
                   "properties":{
                      "description":"Allow_inbound_DB",
                      "protocol":"Tcp",
-                     "sourcePortRanges":["22","3389"],
-                     "destinationPortRange":"*",
+                     "sourcePortRange":"*",
+                     "destinationPortRanges":["22","3389"],
                      "sourceAddressPrefix":"[parameters('bastionsnetaddressPrefix')]",
                      "destinationAddressPrefix":"[parameters('appsnetaddressPrefix')]",
                      "access":"Allow",
