@@ -561,7 +561,7 @@
          "properties":{
             "securityRules":[
                {
-                  "name":"Allow_dat_integration",
+                  "name":"Allow_data_integration",
                   "properties":{
                      "description":"Allow Data Integration Subnet",
                      "protocol":"Tcp",
@@ -574,6 +574,20 @@
                      "destinationAddressPrefix":"[parameters('sftpsnetaddressPrefix')]",
                      "access":"Allow",
                      "priority":100,
+                     "direction":"Inbound"
+                  }
+               },
+               {
+                  "name":"Allow_Bastion_services",
+                  "properties":{
+                     "description":"Allow Bastion services Subnet",
+                     "protocol":"Tcp",
+                     "sourcePortRange":"*",
+                     "destinationPortRange":"22",
+                     "sourceAddressPrefix":"[parameters('bastionsnetaddressPrefix')]",
+                     "destinationAddressPrefix":"[parameters('sftpsnetaddressPrefix')]",
+                     "access":"Allow",
+                     "priority":105,
                      "direction":"Inbound"
                   }
                }
@@ -616,9 +630,9 @@
                   }
                },
                {
-                  "name":"Allow_inbound_DB",
+                  "name":"Allow_Bastion_Services",
                   "properties":{
-                     "description":"Allow_inbound_DB",
+                     "description":"Allow_Bastion_Services",
                      "protocol":"Tcp",
                      "sourcePortRange":"*",
                      "destinationPortRanges":["22","3389"],
